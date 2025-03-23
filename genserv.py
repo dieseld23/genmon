@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------------
 
 from __future__ import print_function
-from genmonlib.program_defaults import ProgramDefaults
+
 import configparser
 import collections
 import errno
@@ -77,9 +77,10 @@ else:
 
 import datetime
 import re
-
+Basepath = "genmon"
+static_url_path=""
 # -------------------------------------------------------------------------------
-app = Flask(__name__, static_url_path="")
+app = Flask(__name__, Basepath + static_url_path)
 
 # this allows the flask support to be extended on a per site basis but sill allow for
 # updates via the main github repository. If genservex.py exists, load it
@@ -87,13 +88,10 @@ if os.path.isfile(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "genservext.py")
 ):
     import genservext
-app.config["APPLICATION_ROOT"] = BasePath
-static_url_path = Basepath
-app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 300
 
-config = configparser.ConfigParser()
-config.read(ProgramDefaults.ConfPath)
-BasePath = config.get("DEFAULT", "BasePath", fallback="").rstrip("/")
+static_url_path = Basepath
+app.config["APPLICATION_ROOT"] = Basepath
+app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 300
 
 HTTPAuthUser = None
 HTTPAuthPass = None
@@ -139,7 +137,7 @@ CriticalLock = threading.Lock()
 CachedToolTips = {}
 CachedRegisterDescriptions = {}
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/logout")
+@app.route(Basepath + "/logout")
 def logout():
     try:
         # remove the session data
@@ -168,7 +166,7 @@ def add_header(r):
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/", methods=["GET"])
+@app.route(Basepath + "/", methods=["GET"])
 def root():
 
     if bUseMFA:
@@ -181,35 +179,35 @@ def root():
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/verbose", methods=["GET"])
+@app.route(Basepath + "/verbose", methods=["GET"])
 def verbose():
 
     return ServePage("index_verbose.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/low", methods=["GET"])
+@app.route(Basepath + "/low", methods=["GET"])
 def lowbandwidth():
 
     return ServePage("index_lowbandwith.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/internal", methods=["GET"])
+@app.route(Basepath + "/internal", methods=["GET"])
 def display_internal():
 
     return ServePage("internal.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/locked", methods=["GET"])
+@app.route(Basepath + "/locked", methods=["GET"])
 def locked():
 
     LogError("Locked Page")
     return render_template("locked.html")
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/upload", methods=["PUT"])
+@app.route(Basepath + "/upload", methods=["PUT"])
 def upload():
     # TODO
     LogError("genserv: Upload")
@@ -228,7 +226,7 @@ def ServePage(page_file):
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/mfa", methods=["POST"])
+@app.route(Basepath + "/mfa", methods=["POST"])
 def mfa_auth():
 
     try:
@@ -268,7 +266,7 @@ def admin_login_helper():
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/", methods=["POST"])
+@app.route(Basepath + "/", methods=["POST"])
 def do_admin_login():
 
     CheckLockOutDuration()
@@ -421,7 +419,7 @@ def doLdapLogin(username, password):
 
 
 # -------------------------------------------------------------------------------
-@app.route(BasePath + "/cmd/<command>")
+@app.route(Basepath + "/cmd/<command>")
 def command(command):
 
     if Closing or Restarting:
