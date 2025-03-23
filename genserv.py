@@ -9,7 +9,8 @@
 # -------------------------------------------------------------------------------
 
 from __future__ import print_function
-
+from genmonlib.program_defaults import ProgramDefaults
+import configparser
 import collections
 import errno
 import json
@@ -86,8 +87,13 @@ if os.path.isfile(
     os.path.join(os.path.dirname(os.path.realpath(__file__)), "genservext.py")
 ):
     import genservext
-
+app.config["APPLICATION_ROOT"] = BasePath
+static_url_path = Basepath
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 300
+
+config = configparser.ConfigParser()
+config.read(ProgramDefaults.ConfPath)
+BasePath = config.get("DEFAULT", "BasePath", fallback="").rstrip("/")
 
 HTTPAuthUser = None
 HTTPAuthPass = None
@@ -133,7 +139,7 @@ CriticalLock = threading.Lock()
 CachedToolTips = {}
 CachedRegisterDescriptions = {}
 # -------------------------------------------------------------------------------
-@app.route("/logout")
+@app.route(BasePath + "/logout")
 def logout():
     try:
         # remove the session data
@@ -162,7 +168,7 @@ def add_header(r):
 
 
 # -------------------------------------------------------------------------------
-@app.route("/", methods=["GET"])
+@app.route(BasePath + "/", methods=["GET"])
 def root():
 
     if bUseMFA:
@@ -175,35 +181,35 @@ def root():
 
 
 # -------------------------------------------------------------------------------
-@app.route("/verbose", methods=["GET"])
+@app.route(BasePath + "/verbose", methods=["GET"])
 def verbose():
 
     return ServePage("index_verbose.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route("/low", methods=["GET"])
+@app.route(BasePath + "/low", methods=["GET"])
 def lowbandwidth():
 
     return ServePage("index_lowbandwith.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route("/internal", methods=["GET"])
+@app.route(BasePath + "/internal", methods=["GET"])
 def display_internal():
 
     return ServePage("internal.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route("/locked", methods=["GET"])
+@app.route(BasePath + "/locked", methods=["GET"])
 def locked():
 
     LogError("Locked Page")
     return render_template("locked.html")
 
 # -------------------------------------------------------------------------------
-@app.route("/upload", methods=["PUT"])
+@app.route(BasePath + "/upload", methods=["PUT"])
 def upload():
     # TODO
     LogError("genserv: Upload")
@@ -222,7 +228,7 @@ def ServePage(page_file):
 
 
 # -------------------------------------------------------------------------------
-@app.route("/mfa", methods=["POST"])
+@app.route(BasePath + "/mfa", methods=["POST"])
 def mfa_auth():
 
     try:
@@ -262,7 +268,7 @@ def admin_login_helper():
 
 
 # -------------------------------------------------------------------------------
-@app.route("/", methods=["POST"])
+@app.route(BasePath + "/", methods=["POST"])
 def do_admin_login():
 
     CheckLockOutDuration()
@@ -415,7 +421,7 @@ def doLdapLogin(username, password):
 
 
 # -------------------------------------------------------------------------------
-@app.route("/cmd/<command>")
+@app.route(BasePath + "/cmd/<command>")
 def command(command):
 
     if Closing or Restarting:
