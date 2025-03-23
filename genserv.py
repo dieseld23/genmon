@@ -77,10 +77,10 @@ else:
 
 import datetime
 import re
-Basepath = "genmon"
-static_url_path=""
+basepath = "/genmon"
+static_url_path=basepath
 # -------------------------------------------------------------------------------
-app = Flask(__name__, Basepath + static_url_path)
+app = Flask(__name__, static_url_path)
 
 # this allows the flask support to be extended on a per site basis but sill allow for
 # updates via the main github repository. If genservex.py exists, load it
@@ -89,8 +89,7 @@ if os.path.isfile(
 ):
     import genservext
 
-static_url_path = Basepath
-app.config["APPLICATION_ROOT"] = Basepath
+app.config["APPLICATION_ROOT"] = basepath
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 300
 
 HTTPAuthUser = None
@@ -137,7 +136,7 @@ CriticalLock = threading.Lock()
 CachedToolTips = {}
 CachedRegisterDescriptions = {}
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/logout")
+@app.route(basepath + "/logout")
 def logout():
     try:
         # remove the session data
@@ -166,7 +165,7 @@ def add_header(r):
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/", methods=["GET"])
+@app.route(basepath + "/", methods=["GET"])
 def root():
 
     if bUseMFA:
@@ -179,35 +178,35 @@ def root():
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/verbose", methods=["GET"])
+@app.route(basepath + "/verbose", methods=["GET"])
 def verbose():
 
     return ServePage("index_verbose.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/low", methods=["GET"])
+@app.route(basepath + "/low", methods=["GET"])
 def lowbandwidth():
 
     return ServePage("index_lowbandwith.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/internal", methods=["GET"])
+@app.route(basepath + "/internal", methods=["GET"])
 def display_internal():
 
     return ServePage("internal.html")
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/locked", methods=["GET"])
+@app.route(basepath + "/locked", methods=["GET"])
 def locked():
 
     LogError("Locked Page")
     return render_template("locked.html")
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/upload", methods=["PUT"])
+@app.route(basepath + "/upload", methods=["PUT"])
 def upload():
     # TODO
     LogError("genserv: Upload")
@@ -226,7 +225,7 @@ def ServePage(page_file):
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/mfa", methods=["POST"])
+@app.route(basepath + "/mfa", methods=["POST"])
 def mfa_auth():
 
     try:
@@ -266,7 +265,7 @@ def admin_login_helper():
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/", methods=["POST"])
+@app.route(basepath + "/", methods=["POST"])
 def do_admin_login():
 
     CheckLockOutDuration()
@@ -419,7 +418,7 @@ def doLdapLogin(username, password):
 
 
 # -------------------------------------------------------------------------------
-@app.route(Basepath + "/cmd/<command>")
+@app.route(basepath + "/cmd/<command>")
 def command(command):
 
     if Closing or Restarting:
@@ -4381,6 +4380,9 @@ def LoadConfig():
         if ConfigFiles[GENMON_CONFIG].HasOption("favicon"):
             favicon = ConfigFiles[GENMON_CONFIG].ReadValue("favicon")
 
+        if ConfigFiles[GENMON_CONFIG].HasOption("basepath"):
+            basepath = ConfigFiles[GENMON_CONFIG].ReadValue("basepath", default="/")
+        
         MaxLoginAttempts = ConfigFiles[GENMON_CONFIG].ReadValue(
             "max_login_attempts", return_type=int, default=5
         )
