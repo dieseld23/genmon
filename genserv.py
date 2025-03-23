@@ -10,7 +10,6 @@
 
 from __future__ import print_function
 
-import configparser
 import collections
 import errno
 import json
