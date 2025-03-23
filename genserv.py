@@ -3080,6 +3080,17 @@ def ReadAdvancedSettingsFromFile():
             GENMON_SECTION,
             "user_url",
         ]
+        ConfigSettings["basepath"] = [
+            "string",
+            "Basepath (beta)",
+            82,
+            "/",
+            "",
+            0,
+            GENMON_CONFIG,
+            GENMON_SECTION,
+            "basepath",
+        ]
         ConfigSettings["extend_wait"] = [
             "int",
             "Extend email retry",
