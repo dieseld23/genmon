@@ -77,10 +77,12 @@ else:
 
 import datetime
 import re
-basepath = "/genmon"
-static_url_path=basepath
+
+configPath = MyConfig(ProgramDefaults.ConfPath + "/genmon.conf")
+basepath = configPath.ReadValue("basepath",section="GenMon",default="/")
+
 # -------------------------------------------------------------------------------
-app = Flask(__name__, static_url_path)
+app = Flask(__name__, static_url_path=basepath)
 
 # this allows the flask support to be extended on a per site basis but sill allow for
 # updates via the main github repository. If genservex.py exists, load it
