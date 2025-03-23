@@ -4333,7 +4333,8 @@ def LoadConfig():
     global favicon
     global MaxLoginAttempts
     global LockOutDuration
-
+    global basepath
+    
     HTTPAuthPass = None
     HTTPAuthUser = None
     SSLContext = None
